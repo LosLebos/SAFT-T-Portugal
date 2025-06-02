@@ -36,15 +36,6 @@
         <!-- Add other navigation links here as needed -->
     </div>
     <div class="user-status">
-        {% if current_username and not is_demo_mode %}
-            Logged in as: <strong>{{ current_username }}</strong>
-            {# <a href="/auth/logout">Logout</a> #} {# Logout link can be added later #}
-        {% elif is_demo_mode %}
-            Mode: <strong>Demo</strong> (Read-only sample data)
-             {# <a href="/auth/token">Login</a> #} {# Login link can be added later #}
-        {% else %}
-            Not logged in
-            {# <a href="/auth/token">Login</a> #}
-        {% endif %}
+        Mode: <strong>Demo</strong> (Read-only sample data)
     </div>
 </div>

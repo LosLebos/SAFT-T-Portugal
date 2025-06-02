@@ -9,7 +9,7 @@ import logging
 # Adjust if project structure is different (e.g. app.database, app.routers.ui)
 from database import create_db_and_tables, get_session # Use get_session for startup data population
 from routers import ui as ui_router
-from routers import auth as auth_router # Import the new auth router
+# No longer importing auth_router as it's deleted
 from core import demo_data # For populating demo data
 
 # Configure basic logging

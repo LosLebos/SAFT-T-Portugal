@@ -9,7 +9,7 @@ import models
 from crud import user_crud
 from core.security import get_password_hash
 from core.config import DEMO_USER_USERNAME, DEMO_USER_PASSWORD
-from schemas import user_schemas # For UserCreate schema
+# from schemas import user_schemas # For UserCreate schema -> This line is removed
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +22,15 @@ def create_demo_user(db: Session) -> models.User:
     demo_user = user_crud.get_user_by_username(db, username=DEMO_USER_USERNAME)
     if not demo_user:
         logger.info(f"Demo user '{DEMO_USER_USERNAME}' not found, creating now.")
-        user_in = user_schemas.UserCreate(
+        # user_schemas.UserCreate is removed. Call user_crud.create_user with direct params.
+        # The create_user function in user_crud now handles password hashing.
+        demo_user = user_crud.create_user(
+            db=db,
             username=DEMO_USER_USERNAME,
-            password=DEMO_USER_PASSWORD,
-            email=f"{DEMO_USER_USERNAME}@example.com" # Demo email
+            password=DEMO_USER_PASSWORD, # Pass plain password here
+            email=f"{DEMO_USER_USERNAME}@example.com"
+            # is_active and is_superuser will use defaults from create_user
         )
-        demo_user = user_crud.create_user(db, user_in)
         logger.info(f"Demo user '{DEMO_USER_USERNAME}' created successfully.")
     else:
         logger.info(f"Demo user '{DEMO_USER_USERNAME}' already exists.")

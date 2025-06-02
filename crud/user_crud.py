@@ -1,12 +1,11 @@
 from typing import Optional
 from sqlmodel import Session, select
 
-# Assuming models.py and schemas/user_schemas.py are accessible
+# Assuming models.py is accessible
 # Adjust paths if using a different project structure.
 # e.g., from .. import models
-# from ..schemas import user_schemas
 import models # This should give access to models.User (the SQLModel class)
-from schemas import user_schemas # This gives access to user_schemas.UserCreate etc.
+# user_schemas is being removed, so UserCreate will not be used here.
 from core.security import get_password_hash # For hashing password before saving
 
 def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
@@ -17,29 +16,64 @@ def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
     user = db.exec(statement).first()
     return user
 
-def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
-    """
-    Fetches a user by their email from the database.
-    """
-    if not email: # Guard against querying with None or empty email if it's optional but unique
-        return None
-    statement = select(models.User).where(models.User.email == email)
-    user = db.exec(statement).first()
-    return user
+# get_user_by_email is being removed as per instructions.
 
-def create_user(db: Session, user_in: user_schemas.UserCreate) -> models.User:
+def create_user(
+    db: Session, 
+    username: str, 
+    hashed_password: str, # Expecting already hashed password for demo user, or raw if called elsewhere
+    email: Optional[str] = None,
+    is_active: bool = True,
+    is_superuser: bool = False
+) -> models.User:
     """
     Creates a new user in the database.
+    Accepts direct parameters instead of a UserCreate schema.
+    The password should be pre-hashed if this function is only for demo user creation with a known hash.
+    Or, if it's for general use, it should take plain password and hash it.
+    Given demo_data.py calls this with a plain password and core.security.get_password_hash,
+    this function should expect a PLAIN password and hash it, or demo_data.py should pre-hash.
+    Let's adjust: create_user will still hash the password.
+    The previous `create_user` in `demo_data.py` used `UserCreate` which had a plain password.
+    So, this `create_user` should also take a plain password and hash it.
     """
-    hashed_password = get_password_hash(user_in.password)
     
-    # Create the SQLModel User instance
+    # Re-confirming: get_password_hash is still in core.security
+    # So this function should take plain_password and hash it.
+    # The call from demo_data.py:
+    # user_in = user_schemas.UserCreate(username=DEMO_USER_USERNAME, password=DEMO_USER_PASSWORD, email=...)
+    # demo_user = user_crud.create_user(db, user_in) 
+    # This implies create_user was expecting UserCreate which has plain password.
+    # So, the new signature should be: username, plain_password, email.
+
+# Corrected signature based on how demo_data will call it (implicitly, after UserCreate is removed from there)
+# demo_data.py will need to be updated to call this with new signature.
+# For now, let's assume demo_data.py will be modified to pass parameters directly.
+
+# Simpler: create_user for demo data will be called from demo_data.py which will handle hashing.
+# This function will now expect a hashed_password.
+# No, let's keep hashing responsibility here for consistency if it were ever used elsewhere.
+# The caller (demo_data.py) will provide plain password.
+
+def create_user( # Renaming plain_password to password for clarity as it's an input.
+    db: Session, 
+    username: str, 
+    password: str, # Plain password
+    email: Optional[str] = None,
+    is_active: bool = True,
+    is_superuser: bool = False
+) -> models.User:
+    """
+    Creates a new user in the database. Hashes the plain password.
+    """
+    hashed_password_val = get_password_hash(password)
+    
     db_user = models.User(
-        username=user_in.username,
-        email=user_in.email, # Will be None if not provided in UserCreate
-        hashed_password=hashed_password,
-        is_active=True, # Default new users to active, can be changed by admin
-        is_superuser=False # Default new users to not superuser
+        username=username,
+        email=email, 
+        hashed_password=hashed_password_val,
+        is_active=is_active,
+        is_superuser=is_superuser
     )
     
     db.add(db_user)

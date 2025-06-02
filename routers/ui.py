@@ -75,23 +75,23 @@ def get_xsd_path_or_error_response(request: Request) -> str:
 async def view_customers(
     request: Request, 
     db: Session = Depends(get_session),
-    active_user_or_demo: models.User = Depends(dependencies.get_current_user_or_demo_user) # Use new dependency
+    # Changed dependency: always use demo_user_context now
+    demo_user_context: models.User = Depends(dependencies.get_demo_user_context) 
 ):
     """
-    Displays a list of customers from the database, filtered by the owner.
-    If no authenticated user, shows data for the demo user.
+    Displays a list of customers from the database, always for the demo user.
     """
-    customers_query = select(models.Customer).where(models.Customer.owner_id == active_user_or_demo.id)
+    # All data operations are now in the context of the demo user.
+    customers_query = select(models.Customer).where(models.Customer.owner_id == demo_user_context.id)
     customers = db.exec(customers_query).all()
     
-    is_demo = active_user_or_demo.username == DEMO_USER_USERNAME
     return templates.TemplateResponse(
         "customers_view.html",
         {
             "request": request, 
             "customers": customers, 
-            "current_username": active_user_or_demo.username,
-            "is_demo_mode": is_demo
+            "current_username": demo_user_context.username, # Will be DEMO_USER_USERNAME
+            "is_demo_mode": True # Always in demo mode now for this UI
         }
     )
 
@@ -99,20 +99,21 @@ async def view_customers(
 async def generate_saft_action(
     request: Request, 
     db: Session = Depends(get_session),
-    active_user_or_demo: models.User = Depends(dependencies.get_current_user_or_demo_user) # Use new dependency
+    # Changed dependency: always use demo_user_context now
+    demo_user_context: models.User = Depends(dependencies.get_demo_user_context) 
 ):
     """
-    Generates the SAF-T XML file for the current (or demo) user, validates it, 
+    Generates the SAF-T XML file (always for the demo user), validates it, 
     and provides it for download or shows an error page if validation fails.
     """
     xsd_path_str = get_xsd_path_or_error_response(request) 
-    is_demo = active_user_or_demo.username == DEMO_USER_USERNAME
+    # is_demo variable is always True now, can be passed directly or navbar can infer
 
     try:
-        # Pass the active_user_or_demo to the engine function
+        # Pass the demo_user_context to the engine function
         audit_file_data: models.AuditFile = engine.get_full_audit_data_for_xml(
             db_session=db, 
-            current_user=active_user_or_demo
+            current_user=demo_user_context 
         )
         xml_string, validation_errors = engine.generate_and_validate_saft_file(
             audit_file_data=audit_file_data,
