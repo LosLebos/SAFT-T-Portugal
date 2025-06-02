@@ -636,4 +636,3 @@ def delete_gl_account(gl_account_db_id):
             flash('An error occurred while deleting the GL account.', 'danger')
     return redirect(url_for('masterfiles.list_gl_accounts'))
 
-[end of app/routes/masterfiles.py]
