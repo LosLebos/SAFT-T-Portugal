@@ -7,3 +7,4 @@ lxml
 xmltodict
 passlib[bcrypt]
 python-multipart
+gunicorn
