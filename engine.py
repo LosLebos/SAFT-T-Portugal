@@ -1,18 +1,31 @@
 import os
 import csv
+import os # os is used in __main__
+import csv # csv is used in __main__
 import json
 from typing import List, Dict, Type
-from pydantic import BaseModel # Still needed for type hinting if some models are not SQLModel
-from sqlmodel import SQLModel, Session # SQLModel itself is a Pydantic BaseModel
+# from pydantic import BaseModel # BaseModel not directly used, SQLModel inherits from it.
+from sqlmodel import SQLModel, Session, select # Added select here, Session is used. SQLModel for type hints.
 import logging
 
 from uploader import read_csv_file
 from mapping import load_mapping_profile, apply_mapping
-from database import get_session, create_db_and_tables 
+from database import create_db_and_tables # get_session is not directly used in this file's functions
+                                          # but used in __main__. For clarity, keep if __main__ is kept.
+                                          # For now, assuming __main__ will be simplified or removed later.
+                                          # Let's remove get_session from here if not used by main functions.
 
 # Import the specific SQLModel table models from models.py that engine will interact with.
-# This helps ensure they are known to SQLModel's metadata for table creation and queries.
-from models import Customer, Supplier, Account as GeneralLedgerAccountSQLModel, Product
+from models import Customer, Supplier, Account as GeneralLedgerAccountSQLModel, Product, User as UserModel
+
+# Imports for get_full_audit_data_for_xml and __main__ example
+from models import (Header, MasterFiles, GeneralLedgerAccounts, GeneralLedgerEntries, AuditFile,
+                    AddressStructure, SAFPTDateSpan, TaxAccountingBasisEnum, CurrencyPT, ProductIDType,
+                    TaxonomyReferenceEnum)
+from core.config import DEMO_USER_USERNAME
+from datetime import date as py_date
+from decimal import Decimal
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +50,9 @@ def process_and_store_file(
 ) -> List[SQLModel]:
     """
     Orchestrates reading a CSV, applying mapping, transforming data into SQLModel instances,
-    and storing them in the database.
+    and storing them in the database. 
+    Note: In the current demo-only application, this function is not directly used by the UI flow 
+    but could be used for administrative data loading if adapted (e.g. to assign owner_id).
 
     Args:
         csv_file_path: Path to the source CSV file.
@@ -49,8 +64,8 @@ def process_and_store_file(
         A list of populated and stored SQLModel instances.
         Returns an empty list if any critical step fails.
     """
-    ensure_db_initialized() # Ensure DB is ready before any operations
-    logger.info(f"Starting processing and storing for CSV: {csv_file_path} with mapping: {mapping_profile_path}")
+    ensure_db_initialized() 
+    logger.info(f"Starting CSV processing and storing: {csv_file_path} with mapping: {mapping_profile_path}")
 
     processed_models: List[SQLModel] = []
 
@@ -74,59 +89,48 @@ def process_and_store_file(
             logger.error(f"Target model '{target_model_name}' from profile not found in provided SQLModel registry. Skipping processing.")
             return []
         
-        # Check if it's a SQLModel (or at least a BaseModel, though we expect SQLModel for DB ops)
-        if not issubclass(TargetModelClass, SQLModel): # or issubclass(TargetModelClass, BaseModel)
-            logger.error(f"Target model '{target_model_name}' is not a SQLModel. Cannot process for DB storage with current logic.")
+        # Check if it's a SQLModel
+        if not issubclass(TargetModelClass, SQLModel):
+            logger.error(f"Target model '{target_model_name}' is not a SQLModel. Cannot process for DB storage.")
             return []
 
         logger.info(f"Applying mapping for target model: {target_model_name}")
-        # apply_mapping can return Pydantic models; ensure they are compatible with SQLModel definitions
-        # If TargetModelClass is a SQLModel, apply_mapping should ideally produce instances of it.
-        transformed_models = apply_mapping(data_rows, mapping_profile, available_saft_models) # Pass SQLModel registry
+        transformed_models = apply_mapping(data_rows, mapping_profile, available_saft_models)
         logger.info(f"Transformed data into {len(transformed_models)} '{target_model_name}' model instances.")
 
         if not transformed_models:
             logger.warning("No models were successfully transformed. Nothing to store.")
             return []
 
-        # Store transformed models in the database
         logger.info(f"Attempting to store {len(transformed_models)} instances of '{target_model_name}' into the database.")
         stored_count = 0
-        with get_session() as session:
+        # Need to import get_session from database to use it here.
+        from database import get_session as get_db_session_for_engine # Alias to avoid conflict if already imported
+        with get_db_session_for_engine() as session:
             for model_instance in transformed_models:
-                if isinstance(model_instance, SQLModel): # Ensure it's a SQLModel instance
+                if isinstance(model_instance, SQLModel): 
                     try:
                         session.add(model_instance)
-                        # session.commit() here would be one by one, or commit at the end of loop
-                        # For bulk, add all then commit once.
                         stored_count += 1
                     except Exception as db_err:
                         logger.error(f"Error adding instance {model_instance} to session: {db_err}", exc_info=True)
-                        session.rollback() # Rollback this specific add if needed, or handle globally
-                        # Decide if one error stops all, or just skip faulty ones
-                        continue # Skip this instance
+                        session.rollback() 
+                        continue 
                 else:
                     logger.warning(f"Instance {type(model_instance)} is not a SQLModel, cannot store in DB. Skipping.")
             
             if stored_count > 0:
                 try:
-                    session.commit() # Commit all added instances
+                    session.commit() 
                     logger.info(f"Successfully committed {stored_count} instances of '{target_model_name}' to the database.")
-                    # Refresh instances to get DB-assigned IDs, etc.
-                    # This part is tricky if commit happens outside. For now, assume commit in get_session.
-                    # If get_session handles commit on exit, then instances might not have IDs populated immediately here
-                    # unless refreshed. However, for this function's scope, returning the original transformed_models
-                    # that were *attempted* to be stored is fine.
-                    processed_models.extend(transformed_models) # Or just those successfully stored.
+                    processed_models.extend(transformed_models) 
                 except Exception as commit_err:
                     logger.error(f"Error committing session to database: {commit_err}", exc_info=True)
                     session.rollback()
-                    return [] # Failed to commit, return empty or raise
+                    return [] 
             else:
                 logger.info("No new instances were added to the session for commit.")
-                # Return only successfully transformed models, even if not stored due to some issue or type mismatch
                 processed_models.extend(transformed_models)
-
 
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}", exc_info=True)

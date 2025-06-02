@@ -1,16 +1,17 @@
 import os
 from pathlib import Path
-from typing import List
+# from typing import List # List is not used
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from sqlmodel import Session
+from sqlmodel import Session, select # Added select
 
 import engine 
 import models # For models.User, models.Customer, models.AuditFile
 from database import get_session 
-from core import dependencies # For get_current_active_user
+from core import dependencies 
+from core.config import DEMO_USER_USERNAME # For setting context
 
 # --- Configuration ---
 router = APIRouter(
@@ -80,6 +81,7 @@ async def view_customers(
 ):
     """
     Displays a list of customers from the database, always for the demo user.
+    The user context is provided by the `get_demo_user_context` dependency.
     """
     # All data operations are now in the context of the demo user.
     customers_query = select(models.Customer).where(models.Customer.owner_id == demo_user_context.id)
@@ -90,8 +92,8 @@ async def view_customers(
         {
             "request": request, 
             "customers": customers, 
-            "current_username": demo_user_context.username, # Will be DEMO_USER_USERNAME
-            "is_demo_mode": True # Always in demo mode now for this UI
+            "current_username": demo_user_context.username, 
+            "is_demo_mode": True 
         }
     )
 
@@ -99,18 +101,16 @@ async def view_customers(
 async def generate_saft_action(
     request: Request, 
     db: Session = Depends(get_session),
-    # Changed dependency: always use demo_user_context now
     demo_user_context: models.User = Depends(dependencies.get_demo_user_context) 
 ):
     """
     Generates the SAF-T XML file (always for the demo user), validates it, 
     and provides it for download or shows an error page if validation fails.
+    The user context is provided by the `get_demo_user_context` dependency.
     """
     xsd_path_str = get_xsd_path_or_error_response(request) 
-    # is_demo variable is always True now, can be passed directly or navbar can infer
 
     try:
-        # Pass the demo_user_context to the engine function
         audit_file_data: models.AuditFile = engine.get_full_audit_data_for_xml(
             db_session=db, 
             current_user=demo_user_context 

@@ -355,10 +355,10 @@ class Header(BaseModel): # Not a DB table for now
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(sa_column=Column("username", unique=True, index=True, nullable=False))
-    email: Optional[str] = Field(default=None, sa_column=Column("email", unique=True, index=True))
+    # email: Optional[str] = Field(default=None, sa_column=Column("email", unique=True, index=True)) # Removed
     hashed_password: str = Field(nullable=False)
     is_active: bool = Field(default=True)
-    is_superuser: bool = Field(default=False)
+    # is_superuser: bool = Field(default=False) # Removed
 
     # Relationship to Customer (User can own multiple Customers)
     # customers: List["Customer"] = Relationship(back_populates="owner") 

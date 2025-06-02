@@ -59,21 +59,22 @@ def create_user( # Renaming plain_password to password for clarity as it's an in
     db: Session, 
     username: str, 
     password: str, # Plain password
-    email: Optional[str] = None,
-    is_active: bool = True,
-    is_superuser: bool = False
+    # email: Optional[str] = None, # Removed from signature
+    is_active: bool = True
+    # is_superuser: bool = False # Removed from signature
 ) -> models.User:
     """
     Creates a new user in the database. Hashes the plain password.
+    Email and is_superuser fields have been removed from the User model.
     """
     hashed_password_val = get_password_hash(password)
     
     db_user = models.User(
         username=username,
-        email=email, 
+        # email=email, # Removed
         hashed_password=hashed_password_val,
-        is_active=is_active,
-        is_superuser=is_superuser
+        is_active=is_active
+        # is_superuser=is_superuser # Removed
     )
     
     db.add(db_user)

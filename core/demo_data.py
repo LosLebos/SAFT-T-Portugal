@@ -27,8 +27,8 @@ def create_demo_user(db: Session) -> models.User:
         demo_user = user_crud.create_user(
             db=db,
             username=DEMO_USER_USERNAME,
-            password=DEMO_USER_PASSWORD, # Pass plain password here
-            email=f"{DEMO_USER_USERNAME}@example.com"
+            password=DEMO_USER_PASSWORD # Pass plain password here
+            # email argument removed
             # is_active and is_superuser will use defaults from create_user
         )
         logger.info(f"Demo user '{DEMO_USER_USERNAME}' created successfully.")

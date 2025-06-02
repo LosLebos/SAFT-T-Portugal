@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+jinja2
+sqlmodel
+pydantic
+lxml
+xmltodict
+passlib[bcrypt]
+python-multipart
