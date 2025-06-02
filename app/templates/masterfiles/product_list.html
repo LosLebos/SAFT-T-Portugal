@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ title }}</h2>
+        <a href="{{ url_for('masterfiles.create_product') }}" class="btn btn-primary">Add New Product</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if products %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Product Code</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Group</th>
+                    <th>Number Code (EAN)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.product_code }}</td>
+                    <td>{{ product.product_description }}</td>
+                    <td>{{ product.product_type.name.replace("_", " ").title() if product.product_type else '-' }}</td> {# Display enum name #}
+                    <td>{{ product.product_group if product.product_group else '-' }}</td>
+                    <td>{{ product.product_number_code if product.product_number_code else '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('masterfiles.edit_product', product_db_id=product.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('masterfiles.delete_product', product_db_id=product.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        No products found. <a href="{{ url_for('masterfiles.create_product') }}" class="alert-link">Add one now!</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

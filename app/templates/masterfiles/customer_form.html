@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% from "bootstrap5/form.html" import render_field %} {# Assuming Bootstrap-Flask for render_field #}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ title }}</h4>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST"
+                  action="{{ url_for(request.endpoint, customer_db_id=customer_db_id if customer_db_id else None) }}"
+                  novalidate>
+                {{ form.hidden_tag() }} {# CSRF token and other hidden fields #}
+
+                <h5 class="mt-3">Customer Details</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.customer_id_field) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.account_id) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.customer_tax_id) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.company_name) }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ render_field(form.contact) }}
+                </div>
+
+                <h5 class="mt-4">Billing Address</h5>
+                <hr>
+                {# Render Billing Address FormField #}
+                {% for field in form.billing_address %}
+                    {% if field.type == 'CSRFTokenField' %}
+                        {# Skip CSRF if FormField includes one, parent form already has it #}
+                    {% else %}
+                        {{ render_field(field, class="mb-2") }}
+                    {% endif %}
+                {% endfor %}
+
+
+                <h5 class="mt-4">Shipping Address (Optional)</h5>
+                <hr>
+                {# Render Shipping Address FormField #}
+                {% for field in form.shipping_address %}
+                     {% if field.type == 'CSRFTokenField' %}
+                     {% else %}
+                        {{ render_field(field, class="mb-2") }}
+                    {% endif %}
+                {% endfor %}
+
+                <h5 class="mt-4">Contact Information</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.telephone) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.fax) }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.email) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.website) }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ render_field(form.self_billing_indicator) }}
+                </div>
+
+                <hr class="mt-4">
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

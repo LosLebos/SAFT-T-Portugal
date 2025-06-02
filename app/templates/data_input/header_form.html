@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% from "bootstrap5/form.html" import render_field %} {# For Bootstrap-Flask #}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-4">
+    <div class="card">
+        <div class="card-header">
+            <h4>{{ title }}</h4> {# Changed to h4 for card header #}
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('data_input.header_input') }}" novalidate>
+                {{ form.hidden_tag() }} {# CSRF token #}
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.AuditFileVersion) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.CompanyID) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.TaxRegistrationNumber) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.TaxAccountingBasis) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.CompanyName) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.BusinessName) }}
+                    </div>
+                </div>
+
+                <fieldset class="mb-3 border p-3 rounded">
+                    <legend class="small fw-bold text-muted">Company Address</legend> {# Bootstrap 5 legend styling #}
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            {{ render_field(form.CompanyAddress_BuildingNumber) }}
+                        </div>
+                        <div class="col-md-8 mb-3">
+                            {{ render_field(form.CompanyAddress_StreetName) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ render_field(form.CompanyAddress_AddressDetail) }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            {{ render_field(form.CompanyAddress_City) }}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            {{ render_field(form.CompanyAddress_PostalCode) }}
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            {{ render_field(form.CompanyAddress_Country) }}
+                        </div>
+                    </div>
+                     <div class="mb-3">
+                        {{ render_field(form.CompanyAddress_Region) }}
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.FiscalYear) }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.StartDate) }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.EndDate) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.CurrencyCode) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.DateCreated) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.TaxEntity) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ render_field(form.ProductCompanyTaxID) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.SoftwareCertificateNumber) }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.ProductID) }}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        {{ render_field(form.ProductVersion) }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ render_field(form.HeaderComment) }}
+                </div>
+
+                <fieldset class="mb-3 border p-3 rounded">
+                    <legend class="small fw-bold text-muted">Optional Contact Information</legend> {# Bootstrap 5 legend styling #}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ render_field(form.Telephone) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ render_field(form.Fax) }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ render_field(form.Email) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ render_field(form.Website) }}
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="d-grid">
+                     {{ form.Submit(class="btn btn-primary") }} {# Direct rendering of submit button for simpler class application #}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

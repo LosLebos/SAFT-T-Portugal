@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+VENV/
+
+# Instance folder (Flask)
+instance/
+
+# IDE settings
+.idea/
+.vscode/
+
+# Other
+*.db
+*.sqlite3
+*.log

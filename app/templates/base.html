@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ APP_BRANDING }} - {% block title %}{% endblock %}</title>
+    {% block styles %}
+        {{ bootstrap.load_css() }}
+    {% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ APP_BRANDING }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <span class="nav-link">Welcome, {{ current_user.username }}!</span>
+                        </li>
+                        <li class="nav-item dropdown"> {# Consider a Dropdown for Master Data #}
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarMasterDataDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Master Data
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarMasterDataDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('masterfiles.list_customers') }}">Customers</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('masterfiles.list_suppliers') }}">Suppliers</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('masterfiles.list_products') }}">Products</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('masterfiles.list_gl_accounts') }}">GL Accounts</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('masterfiles.list_tax_entries') }}">Tax Table</a></li> {# New Link #}
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('data_input.header_input') }}">SAF-T Header</a>
+                        </li>
+                        <li class="nav-item"> {# New Link for Mapping Profiles #}
+                            <a class="nav-link" href="{{ url_for('mapping.list_profiles') }}">Mapping Profiles</a>
+                        </li>
+                        <li class="nav-item"> {# New Link for Upload Transactions #}
+                            <a class="nav-link" href="{{ url_for('data_input.upload_transaction_file') }}">Upload Transactions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.demo_mode') }}">Demo Mode</a>
+                        </li>
+                    {% endif %}
+                    <!-- Add more navigation items here -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}
+        {{ bootstrap.load_js() }}
+    {% endblock %}
+</body>
+</html>

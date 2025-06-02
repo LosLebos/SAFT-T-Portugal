@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ title }}</h2>
+        <a href="{{ url_for('masterfiles.create_tax_entry') }}" class="btn btn-primary">Add New Tax Entry</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if entries %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Region</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th class="text-end">Rate %</th>
+                    <th class="text-end">Amount</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.tax_type.name.replace("_", " ").title() if entry.tax_type else '-' }}</td> {# Display enum name #}
+                    <td>{{ entry.tax_country_region }}</td>
+                    <td>{{ entry.tax_code }}</td>
+                    <td>{{ entry.description }}</td>
+                    <td class="text-end">{{ "%.2f"|format(entry.tax_percentage * 100) if entry.tax_percentage is not none else '-' }}</td>
+                    <td class="text-end">{{ "%.2f"|format(entry.tax_amount) if entry.tax_amount is not none else '-' }}</td>
+                    <td>{{ entry.tax_expiration_date.strftime('%Y-%m-%d') if entry.tax_expiration_date else '-' }}</td>
+                    <td>
+                        <a href="{{ url_for('masterfiles.edit_tax_entry', tax_entry_db_id=entry.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Edit">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <form method="POST" action="{{ url_for('masterfiles.delete_tax_entry', tax_entry_db_id=entry.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this tax entry?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        No tax table entries found. <a href="{{ url_for('masterfiles.create_tax_entry') }}" class="alert-link">Add one now!</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
