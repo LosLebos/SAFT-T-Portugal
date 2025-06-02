@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAF-T Customers</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .content-container { padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .page-description { margin-bottom: 15px; font-size: 1.1em; }
+        .demo-mode-note { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border: 1px solid #ffeeba; 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border-radius: 5px;
+        }
+        .action-link { 
+            display: inline-block;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .action-link:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <div class="content-container">
+        <h1>Customer Master Files</h1>
+        <p class="page-description">
+            This page displays a list of customer records from the database. 
+            You can view customer details and initiate the generation of a SAF-T XML file.
+        </p>
+
+        {% if is_demo_mode %}
+        <div class="demo-mode-note">
+            <p><strong>Note:</strong> You are currently in Demo Mode. The data shown is sample data for demonstration purposes and is read-only.</p>
+        </div>
+        {% endif %}
+
+        <a href="/ui/actions/generate-saft" class="action-link">Generate SAF-T XML File</a>
+
+        {% if customers %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Company Name</th>
+                    <th>Tax ID</th>
+                    <th>Billing City</th>
+                    <th>Billing Country</th>
+                    <th>Account ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td>{{ customer.CustomerID }}</td>
+                    <td>{{ customer.CompanyName }}</td>
+                    <td>{{ customer.CustomerTaxID }}</td>
+                    <td>{{ customer.BillingAddress.City if customer.BillingAddress else 'N/A' }}</td>
+                    <td>{{ customer.BillingAddress.Country if customer.BillingAddress else 'N/A' }}</td>
+                    <td>{{ customer.AccountID }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No customers found for the current user context.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

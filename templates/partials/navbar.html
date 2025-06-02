@@ -1,0 +1,50 @@
+<style>
+    .navbar {
+        background-color: #333;
+        overflow: hidden;
+        padding: 10px 20px;
+        color: white;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar a {
+        color: white;
+        text-decoration: none;
+        padding: 14px 16px;
+        display: inline-block;
+    }
+    .navbar a:hover {
+        background-color: #ddd;
+        color: black;
+    }
+    .navbar .nav-links a {
+        margin-right: 10px;
+    }
+    .navbar .user-status {
+        float: right; /* Kept for clarity, but flexbox handles alignment */
+        padding: 14px 0; /* Align with links */
+        font-size: 0.9em;
+    }
+</style>
+
+<div class="navbar">
+    <div class="nav-links">
+        <a href="/ui/view/customers">View Customers</a>
+        <a href="/ui/help">Help</a>
+        <!-- Add other navigation links here as needed -->
+    </div>
+    <div class="user-status">
+        {% if current_username and not is_demo_mode %}
+            Logged in as: <strong>{{ current_username }}</strong>
+            {# <a href="/auth/logout">Logout</a> #} {# Logout link can be added later #}
+        {% elif is_demo_mode %}
+            Mode: <strong>Demo</strong> (Read-only sample data)
+             {# <a href="/auth/token">Login</a> #} {# Login link can be added later #}
+        {% else %}
+            Not logged in
+            {# <a href="/auth/token">Login</a> #}
+        {% endif %}
+    </div>
+</div>

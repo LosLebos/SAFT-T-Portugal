@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help / Documentation - SAF-T Tools</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+        .content-container { padding: 20px; }
+        h1, h2 { color: #333; }
+        p { line-height: 1.6; }
+        .section { margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }
+        .demo-mode-note { 
+            background-color: #fff3cd; 
+            color: #856404; 
+            border: 1px solid #ffeeba; 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <div class="content-container">
+        <h1>Help / Documentation</h1>
+
+        {% if is_demo_mode %}
+        <div class="demo-mode-note">
+            <p><strong>Note:</strong> You are currently in Demo Mode. The information and features described may be limited to sample data.</p>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h2>Welcome to SAF-T Tools</h2>
+            <p>
+                This application is designed to assist with the generation and management of SAF-T (Standard Audit File for Tax)
+                data, specifically tailored for the Portuguese SAF-T PT format (Version 1.04_01).
+                It allows users to manage master data, upload transactional data (upcoming feature),
+                and generate compliant XML files.
+            </p>
+            <p>
+                Whether you are an authenticated user managing your own company's data or exploring the application
+                in Demo Mode, we aim to provide a straightforward experience.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Current Features</h2>
+            <ul>
+                <li><strong>User Authentication:</strong> Secure login and registration for managing your own data.</li>
+                <li><strong>Demo Mode:</strong> Unauthenticated users can explore the application using pre-populated sample data. Data viewed or generated in demo mode is for illustrative purposes only.</li>
+                <li><strong>Customer Data Management:</strong>
+                    <ul>
+                        <li>View a list of customers (filtered by user in authenticated mode, demo data otherwise).</li>
+                        <li>(Future: Upload, Add, Edit, Delete Customer records).</li>
+                    </ul>
+                </li>
+                <li><strong>SAF-T XML Generation:</strong>
+                    <ul>
+                        <li>Generate a SAF-T PT XML file based on the current user's data (or demo data).</li>
+                        <li>The generated XML includes Header, MasterFiles (Customers, Products, Suppliers, GeneralLedgerAccounts), and placeholder GeneralLedgerEntries.</li>
+                        <li>XML is validated against the official SAFTPT1_04_01.xsd schema before download.</li>
+                        <li>Error reporting if the generated XML fails schema validation.</li>
+                    </ul>
+                </li>
+                <li><strong>Master Data Management (Backend):</strong>
+                    <ul>
+                        <li>Functionality to manage Suppliers, Products, and General Ledger Accounts is supported by the backend models and database structure, though UI for direct management is pending.</li>
+                        <li>Demo data includes samples for these master files.</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Upcoming Features / Roadmap</h2>
+            <ul>
+                <li><strong>Full Master Data Management UI:</strong> Web interfaces for adding, editing, and deleting Customers, Suppliers, Products, and General Ledger Accounts.</li>
+                <li><strong>Transactional Data Upload:</strong> Functionality to upload GeneralLedgerEntries (Journal, Transactions, Lines) from CSV or other formats.</li>
+                <li><strong>SourceDocuments Data Upload:</strong> Support for SalesInvoices, MovementOfGoods, WorkingDocuments, and Payments.</li>
+                <li><strong>Enhanced Header Configuration:</strong> UI to manage and customize Header data for SAF-T generation.</li>
+                <li><strong>User Profile Management:</strong> Allow users to manage their profile information.</li>
+                <li><strong>Data Validation Enhancements:</strong> More granular validation during data input and upload.</li>
+                <li><strong>Comprehensive Error Reporting:</strong> Improved user feedback for all operations.</li>
+                <li><strong>User Roles and Permissions:</strong> (If applicable) Differentiating user capabilities.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Contact / Support</h2>
+            <p>
+                For issues or questions, please refer to the project's documentation or contact the development team.
+                (Placeholder for actual contact info or links).
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

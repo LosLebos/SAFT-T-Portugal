@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding:0; background-color: #f8d7da; color: #721c24; }
+        .content-container { padding: 20px; }
+        .container { border: 1px solid #f5c6cb; padding: 20px; border-radius: 5px; background-color: #fddfea; margin-top: 20px; }
+        h1 { color: #721c24; }
+        ul { list-style-type: none; padding: 0; }
+        li { background-color: #f5c6cb; margin-bottom: 10px; padding: 10px; border-radius: 3px; }
+        a { color: #0056b3; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+
+    <div class="content-container">
+        <div class="container">
+            <h1>An Error Occurred</h1>
+            <p>There was a problem processing your request. Please see the errors below:</p>
+            
+            {% if errors and errors|length > 0 %}
+            <ul>
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>An unspecified error occurred.</p>
+            {% endif %}
+            
+            <p><a href="/ui/view/customers">Go to Customers Page</a> or <a href="javascript:history.back()">Go Back</a></p>
+        </div>
+    </div>
+</body>
+</html>

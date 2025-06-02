@@ -1,0 +1,13 @@
+{
+  "profile_name": "Test Customer Mapping",
+  "target_model": "Customer",
+  "mappings": {
+    "Client ID": "CustomerID",
+    "Company Name": "CompanyName",
+    "Billing Address": "BillingAddress.AddressDetail",
+    "City": "BillingAddress.City",
+    "Postal Code": "BillingAddress.PostalCode",
+    "Country": "BillingAddress.Country",
+    "Tax ID": "CustomerTaxID"
+  }
+}
