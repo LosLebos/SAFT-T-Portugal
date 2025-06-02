@@ -1,5 +1,5 @@
 Flask>=2.0
-Flask-Bootstrap>=1.0
+Bootstrap-Flask>=2.0  # <-- CHANGE THIS
 Flask-WTF>=0.15
 Pydantic>=1.8
 Flask-SQLAlchemy>=2.5
