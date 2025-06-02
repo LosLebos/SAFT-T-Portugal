@@ -8,4 +8,5 @@ Flask-Login>=0.5
 openpyxl>=3.0 # For .xlsx file reading
 pandas>=1.3   # For CSV/Excel parsing and data handling
 gunicorn
+pydantic[email]
 # Werkzeug (for password hashing) is a Flask dependency
